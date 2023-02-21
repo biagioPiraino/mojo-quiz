@@ -1,5 +1,5 @@
 from queue import Queue
-from Question import Question
+from ApiRequester import ApiRequester
 
 class Quizzer:
 	def __init__(self) -> None:
@@ -8,7 +8,8 @@ class Quizzer:
 		self.__cached_answer: bool
 
 	def LoadQuestions(self) -> None:
-		questions = [] # retrieve questions from api using api requester
+		requester = ApiRequester()
+		questions = requester.RetrieveQuestions()
 		for question in questions:
 			self.__questions.put(question)
 
