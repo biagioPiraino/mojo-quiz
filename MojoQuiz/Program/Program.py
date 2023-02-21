@@ -6,7 +6,7 @@ class Program:
 		pass
 
 	@classmethod
-	def RunProgram() -> None:
+	def RunProgram(self) -> None:
 		quizzer = Quizzer()
 		quizzer.LoadQuestions()
 		UserInterface(quizzer)
