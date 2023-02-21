@@ -8,6 +8,8 @@ class UserInterface:
     __UI_FG_SCORE = "white"
     __UI_BG_CANVA = "white"
     __UI_FG_CANVA = "#375362"
+    __UI_BG_RIGHT = "green"
+    __UI_BG_WRONG = "red"
 
     def __init__(self, quizzer: Quizzer) -> None:
         self.__load_quizzer(quizzer)
@@ -51,7 +53,7 @@ class UserInterface:
             150, 
             125, 
             width=280, 
-            text="Placeholder question", 
+            text=self.__quizzer.ReturnNextQuestions(), 
             fill=self.__UI_FG_CANVA,
             font=("Arial", 14, "italic"))
         self.__qst_canva.grid(row=1, column=0, columnspan=2, pady=30)
@@ -65,10 +67,34 @@ class UserInterface:
         self.__false_button.grid(row=2, column=1)
         
     def __click_true_button(self) -> None:
-        pass
-
-    def __click_false_button(self) -> None:
-        pass
+        if (self.__quizzer.CheckUserAnswer(True)):
+            self.__qst_canva.config(bg=self.__UI_BG_RIGHT)
+        else:
+            self.__qst_canva.config(bg=self.__UI_BG_WRONG)
         
+        self.__qst_canva.itemconfig(self.__question_text, fill=self.__UI_FG_SCORE)
+
+        if (self.__quizzer.QuestionsStillAvailable()):
+            self.__root.after(1000, self.__reset_canva)
+        
+    def __click_false_button(self) -> None:
+        if (self.__quizzer.CheckUserAnswer(False)):
+            self.__qst_canva.config(bg=self.__UI_BG_RIGHT)
+        else:
+            self.__qst_canva.config(bg=self.__UI_BG_WRONG)
+        
+        self.__qst_canva.itemconfig(self.__question_text, fill=self.__UI_FG_SCORE)
+        
+        if (self.__quizzer.QuestionsStillAvailable()):
+            self.__root.after(1000, self.__reset_canva)
+
+    def __reset_canva(self) -> None:
+        self.__qst_canva.config(bg=self.__UI_BG_CANVA)
+        next_question = self.__quizzer.ReturnNextQuestions()
+        self.__qst_canva.itemconfig(
+            self.__question_text, 
+            fill= self.__UI_FG_CANVA, 
+            text=next_question)
+
     def __launch(self) -> None:
         self.__root.mainloop()   
