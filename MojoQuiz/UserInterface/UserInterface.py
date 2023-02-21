@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from pathlib import Path
+from Quizzer import Quizzer
 
 class UserInterface:
     __UI_BG_COLOR = "#375362"
@@ -8,7 +9,8 @@ class UserInterface:
     __UI_BG_CANVA = "white"
     __UI_FG_CANVA = "#375362"
 
-    def __init__(self) -> None:
+    def __init__(self, quizzer: Quizzer) -> None:
+        self.__load_quizzer(quizzer)
         self.__load_images_folder_path()
         self.__define_root()
         self.__define_scoreboard()
@@ -16,6 +18,9 @@ class UserInterface:
         self.__define_buttons()
         self.__launch()
     
+    def __load_quizzer(self, quizzer: Quizzer) -> None:
+        self.__quizzer = quizzer
+
     def __load_images_folder_path(self) -> None:
         current_directory = os.path.dirname(os.path.realpath(__file__))
         self.__images_folder_path = Path(current_directory,"Images") 
