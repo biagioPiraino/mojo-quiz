@@ -1,14 +1,18 @@
 import os
 import tkinter as tk
 from pathlib import Path
+from Quizzer import Quizzer
 
 class UserInterface:
     __UI_BG_COLOR = "#375362"
     __UI_FG_SCORE = "white"
     __UI_BG_CANVA = "white"
     __UI_FG_CANVA = "#375362"
+    __UI_BG_RIGHT = "green"
+    __UI_BG_WRONG = "red"
 
-    def __init__(self) -> None:
+    def __init__(self, quizzer: Quizzer) -> None:
+        self.__load_quizzer(quizzer)
         self.__load_images_folder_path()
         self.__define_root()
         self.__define_scoreboard()
@@ -16,6 +20,9 @@ class UserInterface:
         self.__define_buttons()
         self.__launch()
     
+    def __load_quizzer(self, quizzer: Quizzer) -> None:
+        self.__quizzer = quizzer
+
     def __load_images_folder_path(self) -> None:
         current_directory = os.path.dirname(os.path.realpath(__file__))
         self.__images_folder_path = Path(current_directory,"Images") 
@@ -28,7 +35,7 @@ class UserInterface:
     def __define_scoreboard(self) -> None:
         self.__score_label = tk.Label(
             self.__root, 
-            text="Score: 0", 
+            text=f"Score: {self.__quizzer.GetCurrentScore()}", 
             padx=20,
             bg=self.__UI_BG_COLOR,
             fg=self.__UI_FG_SCORE
@@ -46,7 +53,7 @@ class UserInterface:
             150, 
             125, 
             width=280, 
-            text="Placeholder question", 
+            text=self.__quizzer.ReturnNextQuestions(), 
             fill=self.__UI_FG_CANVA,
             font=("Arial", 14, "italic"))
         self.__qst_canva.grid(row=1, column=0, columnspan=2, pady=30)
@@ -60,10 +67,45 @@ class UserInterface:
         self.__false_button.grid(row=2, column=1)
         
     def __click_true_button(self) -> None:
-        pass
+        if (self.__quizzer.CheckUserAnswer(True)):
+            self.__qst_canva.config(bg=self.__UI_BG_RIGHT)
+            self.__update_score()
+        else:
+            self.__qst_canva.config(bg=self.__UI_BG_WRONG)
+        
+        self.__qst_canva.itemconfig(self.__question_text, fill=self.__UI_FG_SCORE)
+        self.__root.after(1000, self.__process_next_interaction)
 
     def __click_false_button(self) -> None:
-        pass
+        if (self.__quizzer.CheckUserAnswer(False)):
+            self.__qst_canva.config(bg=self.__UI_BG_RIGHT)
+            self.__update_score()
+        else:
+            self.__qst_canva.config(bg=self.__UI_BG_WRONG)
         
+        self.__qst_canva.itemconfig(self.__question_text, fill=self.__UI_FG_SCORE)
+        self.__root.after(1000, self.__process_next_interaction)
+
+    def __process_next_interaction(self) -> None:
+        self.__qst_canva.config(bg=self.__UI_BG_CANVA)
+
+        if (self.__quizzer.QuestionsStillAvailable()):
+            next_question = self.__quizzer.ReturnNextQuestions()
+            self.__qst_canva.itemconfig(
+                self.__question_text, 
+                fill= self.__UI_FG_CANVA, 
+                text=next_question)
+        else:
+            self.__qst_canva.itemconfig(
+                self.__question_text, 
+                fill= self.__UI_FG_CANVA, 
+                text=f"Game is over. Final score is: {self.__quizzer.GetCurrentScore()}")
+            self.__true_button.config(state="disabled")
+            self.__false_button.config(state="disabled")
+            
+    def __update_score(self) -> None:
+        self.__quizzer.UpdateScore()
+        self.__score_label.config(text=f"Score: {self.__quizzer.GetCurrentScore()}")
+    
     def __launch(self) -> None:
         self.__root.mainloop()   

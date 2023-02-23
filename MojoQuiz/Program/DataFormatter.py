@@ -1,4 +1,5 @@
 from Question import Question
+import html
 
 class DataFormatter:
 	def __init__(self) -> None:
@@ -9,7 +10,7 @@ class DataFormatter:
 		questions = list()
 		
 		for result in results:
-			question = result["question"]
+			question = html.unescape(result["question"])
 			answer: bool
 
 			if (result["correct_answer"] == "True"):
