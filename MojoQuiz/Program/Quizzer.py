@@ -4,6 +4,7 @@ from ApiRequester import ApiRequester
 class Quizzer:
 	def __init__(self) -> None:
 		self.__questions = Queue()
+		self.__score = 0
 		self.__cached_question: str
 		self.__cached_answer: bool
 
@@ -22,6 +23,12 @@ class Quizzer:
 
 	def QuestionsStillAvailable(self) -> bool:
 		return not self.__questions.empty()
+
+	def UpdateScore(self) -> None:
+		self.__score += 1
+
+	def GetCurrentScore(self) -> None:
+		return self.__score
 
 	def __cache_current_question(self) -> None:
 		question = self.__questions.get()

@@ -35,7 +35,7 @@ class UserInterface:
     def __define_scoreboard(self) -> None:
         self.__score_label = tk.Label(
             self.__root, 
-            text="Score: 0", 
+            text=f"Score: {self.__quizzer.GetCurrentScore()}", 
             padx=20,
             bg=self.__UI_BG_COLOR,
             fg=self.__UI_FG_SCORE
@@ -69,32 +69,43 @@ class UserInterface:
     def __click_true_button(self) -> None:
         if (self.__quizzer.CheckUserAnswer(True)):
             self.__qst_canva.config(bg=self.__UI_BG_RIGHT)
+            self.__update_score()
         else:
             self.__qst_canva.config(bg=self.__UI_BG_WRONG)
         
         self.__qst_canva.itemconfig(self.__question_text, fill=self.__UI_FG_SCORE)
+        self.__root.after(1000, self.__process_next_interaction)
 
-        if (self.__quizzer.QuestionsStillAvailable()):
-            self.__root.after(1000, self.__reset_canva)
-        
     def __click_false_button(self) -> None:
         if (self.__quizzer.CheckUserAnswer(False)):
             self.__qst_canva.config(bg=self.__UI_BG_RIGHT)
+            self.__update_score()
         else:
             self.__qst_canva.config(bg=self.__UI_BG_WRONG)
         
         self.__qst_canva.itemconfig(self.__question_text, fill=self.__UI_FG_SCORE)
-        
-        if (self.__quizzer.QuestionsStillAvailable()):
-            self.__root.after(1000, self.__reset_canva)
+        self.__root.after(1000, self.__process_next_interaction)
 
-    def __reset_canva(self) -> None:
+    def __process_next_interaction(self) -> None:
         self.__qst_canva.config(bg=self.__UI_BG_CANVA)
-        next_question = self.__quizzer.ReturnNextQuestions()
-        self.__qst_canva.itemconfig(
-            self.__question_text, 
-            fill= self.__UI_FG_CANVA, 
-            text=next_question)
 
+        if (self.__quizzer.QuestionsStillAvailable()):
+            next_question = self.__quizzer.ReturnNextQuestions()
+            self.__qst_canva.itemconfig(
+                self.__question_text, 
+                fill= self.__UI_FG_CANVA, 
+                text=next_question)
+        else:
+            self.__qst_canva.itemconfig(
+                self.__question_text, 
+                fill= self.__UI_FG_CANVA, 
+                text=f"Game is over. Final score is: {self.__quizzer.GetCurrentScore()}")
+            self.__true_button.config(state="disabled")
+            self.__false_button.config(state="disabled")
+            
+    def __update_score(self) -> None:
+        self.__quizzer.UpdateScore()
+        self.__score_label.config(text=f"Score: {self.__quizzer.GetCurrentScore()}")
+    
     def __launch(self) -> None:
         self.__root.mainloop()   
